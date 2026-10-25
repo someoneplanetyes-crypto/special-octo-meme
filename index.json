@@ -3,6 +3,29 @@
   "name": "My Plugin Repository",
   "description": "Example plugin repository from the Revenge plugin template.",
   "plugins": {
+    "com.bread.multiemoji": {
+      "name": "Multi Emoji",
+      "description": "Selects multiple emojis to react",
+      "author": "Bread <1340140909093720084>",
+      "channels": {
+        "latest": "1.0.0"
+      },
+      "versions": {
+        "1.0.0": {
+          "url": "https://someoneplanetyes-crypto.github.io/special-octo-meme/pool/com.bread.multiemoji@1.0.0.zip",
+          "sha256": "83f3824396188d91281b8f75d99b270cdbdda7514d7d4c6aefd48be9230db4c1",
+          "size": 338,
+          "dependencies": {
+            "revenge.api": {
+              "version": ">=1.2.1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        }
+      }
+    },
     "com.example.emojis": {
       "name": "Example Emojis",
       "description": "Example emoji packs for Revenge.",
