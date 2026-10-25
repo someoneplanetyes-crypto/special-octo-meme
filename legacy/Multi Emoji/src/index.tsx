@@ -1,12 +1,14 @@
 import { React, ReactNative } from "@vendetta/metro/common";
 import { findByName, findByProps } from "@vendetta/metro";
-import { after, unpatchAll } from "@vendetta/patcher";
+import { findInReactTree } from "@vendetta/utils";
+import { after, before, unpatchAll } from "@vendetta/patcher";
 import { showModal, hideModal } from "@vendetta/ui/modals";
 
 const { View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet } = ReactNative;
 const ReactionModules = findByProps("addReaction", "removeReaction");
-const MessageActionSheet = findByName("MessageActionSheet", false);
 const LazyActionSheet = findByProps("openLazy", "hideActionSheet");
+const ActionSheetRowModule = findByProps("ActionSheetRow");
+const ActionSheetRow = ActionSheetRowModule?.ActionSheetRow;
 
 const styles = StyleSheet.create({
   container: { padding: 20, backgroundColor: "#1e1f22", borderTopLeftRadius: 16, borderTopRightRadius: 16 },
@@ -89,31 +91,93 @@ function MultiReactModal({ channelId, messageId }: { channelId: string; messageI
   );
 }
 
+function injectMultiReactRow(tree: any, message: any) {
+  if (!findInReactTree || !ActionSheetRow) return false;
+
+  const row = React.createElement(ActionSheetRow, {
+    label: "Multi React",
+    onPress: () => {
+      LazyActionSheet?.hideActionSheet?.();
+      showModal({
+        render: () => <MultiReactModal
+          channelId={String(message.channel_id ?? message.channelId)}
+          messageId={String(message.id)}
+        />,
+      });
+    },
+    key: "multi-emoji-legacy",
+  });
+
+  const groups = findInReactTree(
+    tree,
+    (value: any) => Array.isArray(value) && value?.[0]?.type?.name === "ActionSheetRowGroup",
+  );
+  if (groups?.length) {
+    const target = groups[1] ?? groups[0];
+    const rows = target?.props?.children;
+    if (Array.isArray(rows)) {
+      if (rows.some((child: any) => child?.key === "multi-emoji-legacy" || child?.props?.label === "Multi React")) return true;
+      rows.push(row);
+      return true;
+    }
+  }
+
+  const rows = findInReactTree(
+    tree,
+    (value: any) => Array.isArray(value) && value.some((child: any) => child?.type?.name === "ActionSheetRow"),
+  );
+  if (rows) {
+    if (!rows.some((child: any) => child?.key === "multi-emoji-legacy" || child?.props?.label === "Multi React")) {
+      rows.push(row);
+    }
+    return true;
+  }
+  return false;
+}
+
 export default {
   onLoad() {
-    if (!ReactionModules || !MessageActionSheet || !LazyActionSheet) {
-      console.error("[Multi Emoji Legacy] Required Discord modules were not found.");
+    if (!ReactionModules?.addReaction || !LazyActionSheet?.openLazy || !findInReactTree || !ActionSheetRow) {
+      console.error("[Multi Emoji Legacy] Required Discord modules were not found.", {
+        reactions: !!ReactionModules?.addReaction,
+        actionSheet: !!LazyActionSheet?.openLazy,
+        row: !!ActionSheetRow,
+        reactTree: !!findInReactTree,
+      });
       return;
     }
 
-    after("default", MessageActionSheet, ([args], result) => {
-      const message = args?.message;
-      if (!message || !Array.isArray(result?.props?.options)) return result;
+    before("openLazy", LazyActionSheet, ([component, sheetName, context]) => {
+      const message = context?.message;
+      if (sheetName !== "MessageLongPressActionSheet" || !message) return;
 
-      result.props.options.push({
-        text: "Multi React",
-        icon: "ic_add_reaction_24px",
-        onPress: () => {
-          LazyActionSheet.hideActionSheet();
-          showModal({
-            render: () => <MultiReactModal channelId={message.channel_id} messageId={message.id} />
-          });
+      Promise.resolve(component).then((instance: any) => {
+        if (!instance || typeof instance.default !== "function") {
+          console.error("[Multi Emoji Legacy] Long-press sheet component was not found.");
+          return;
         }
+
+        let unpatchInstance: (() => void) | undefined;
+        unpatchInstance = after("default", instance, (_args: any, tree: any) => {
+          try {
+            React.useEffect(() => () => {
+              try { unpatchInstance?.(); } catch {}
+            }, []);
+          } catch {}
+          try {
+            const injected = injectMultiReactRow(tree, message);
+            if (!injected) console.warn("[Multi Emoji Legacy] Could not find an action-row container.");
+          } catch (error) {
+            console.error("[Multi Emoji Legacy] Action-sheet injection failed", error);
+          }
+          return tree;
+        });
+      }).catch((error: any) => {
+        console.error("[Multi Emoji Legacy] Failed to load long-press sheet", error);
       });
-      return result;
     });
   },
   onUnload() {
     unpatchAll();
-  }
+  },
 };
