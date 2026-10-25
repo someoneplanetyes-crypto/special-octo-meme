@@ -25,10 +25,7 @@ const plugins = [
       const jsx = !ts ? ext.endsWith("x") : undefined;
       const result = await swc.transform(code, {
         filename: id,
-        jsc: {
-          externalHelpers: true,
-          parser: { syntax: ts ? "typescript" : "ecmascript", tsx, jsx },
-        },
+        jsc: { externalHelpers: true, parser: { syntax: ts ? "typescript" : "ecmascript", tsx, jsx } },
         env: { targets: "defaults", include: ["transform-classes", "transform-arrow-functions"] },
       });
       return result.code;
@@ -41,7 +38,6 @@ await mkdir(outputDir, { recursive: true });
 const bundle = await rollup({
   input: `${sourceDir}/${manifest.main}`,
   onwarn(warning, warn) {
-    // Vendetta APIs are runtime-provided globals, not npm packages.
     if (warning.code === "UNRESOLVED_IMPORT") return;
     warn(warning);
   },
