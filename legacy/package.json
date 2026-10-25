@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:legacy": "node scripts/build-legacy.mjs"
+  }
+}
