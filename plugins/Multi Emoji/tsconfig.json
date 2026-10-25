@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    /* Target and Module settings */
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    
+    /* React Native / JSX Support */
+    "jsx": "react",
+    
+    /* Strict Type-Checking Rules */
+    "strict": true,
+    "noImplicitAny": false, // Keeps things easier while exploring internal Discord modules
+    "strictNullChecks": true,
+    
+    /* Compatibility and Interop */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    
+    /* Path mapping for Revenge APIs */
+    "baseUrl": ".",
+    "paths": {
+      "@revenge": ["node_modules/@revenge/api"], // Adjust this path if your template uses a different directory
+      "@revenge/*": ["node_modules/@revenge/api/*"]
+    }
+  },
+  "include": ["src/**/*", "index.ts"],
+  "exclude": ["node_modules", "dist"]
+}
