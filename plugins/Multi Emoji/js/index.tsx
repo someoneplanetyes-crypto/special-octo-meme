@@ -1,17 +1,19 @@
 import React, { useState } from "react";
-import { metro } from "@revenge-mod/modules";
-import { after } from "@revenge-mod/patcher";
+import { lookupModule } from "@revenge-mod/modules/finders";
+import { withName, withProps } from "@revenge-mod/modules/finders/filters";
+import { after, before } from "@revenge-mod/patcher";
 
-// 1. Locate Discord's internal modules and foundational UI components
-const ReactionModules = metro.findByProps("addReaction", "removeReaction");
-const MessageActionSheet = metro.find(m => m?.default?.name === "MessageActionSheet" || m?.MessageActionSheet);
-const LazyActionSheet = metro.findByProps("openLazy", "hideActionSheet");
+// Resolve modules using Revenge's current module-finder API.
+const [ReactionModules] = lookupModule(withProps("addReaction", "removeReaction"));
+const [MessageActionSheet] = lookupModule(withName("MessageActionSheet"), { returnNamespace: true });
+const [LazyActionSheet] = lookupModule(withProps("openLazy", "hideActionSheet"));
+const [ReactNative] = lookupModule(withProps("View", "Text", "TextInput", "Image"), { returnNamespace: true });
+const [ModalModule] = lookupModule(withProps("showModal", "hideModal"), { returnNamespace: true });
+const { View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet } = ReactNative;
+const { showModal } = ModalModule;
 
-// Pull React Native UI elements exposed in Discord's bundle
-const { View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet } = metro.findByProps("View", "Text", "TextInput", "Image");
-const { showModal } = metro.findByProps("showModal", "hideModal");
-
-let unpatch: () => void;
+let unpatchBefore: () => void;
+let unpatchAfter: () => void;
 
 function MultiReactModal({ channelId, messageId, onClose }: { channelId: string, messageId: string, onClose: () => void }) {
     const [inputText, setInputText] = useState("");
@@ -153,11 +155,21 @@ const styles = StyleSheet.create({
     submitText: { color: "#ffffff", fontWeight: "bold", fontSize: 14 }
 });
 
-export default {
-    onLoad: () => {
-        console.log("[MultiReact] Safe build initialized.");
-        unpatch = after("default", MessageActionSheet, ([{ message }], res) => {
-            if (!res || !res.props || !res.props.options) return;
+export default plugin({
+    start({ cleanup }) {
+        console.log("[MultiReact] Initialized.");
+        let currentMessage: any;
+        if (!MessageActionSheet?.default) {
+            console.error("[MultiReact] Could not locate MessageActionSheet.");
+            return;
+        }
+        unpatchBefore = before(MessageActionSheet, "default", (args) => {
+            currentMessage = args[0]?.message;
+            return args;
+        });
+        unpatchAfter = after(MessageActionSheet, "default", (res) => {
+            const message = currentMessage;
+            if (!message || !res || !res.props || !Array.isArray(res.props.options)) return res;
 
             res.props.options.push({
                 text: "Multi React",
@@ -175,10 +187,8 @@ export default {
                     });
                 }
             });
+            return res;
         });
-    },
-    onUnload: () => {
-        if (unpatch) unpatch();
-        console.log("[MultiReact] Cleanly shut down.");
+        cleanup(unpatchBefore, unpatchAfter);
     }
-};
+});
