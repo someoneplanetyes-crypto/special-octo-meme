@@ -49,7 +49,7 @@ await bundle.write({
   compact: true,
   exports: "named",
   globals(id) {
-    if (id.startsWith("@vendetta")) return id.substring(1).replace(/\\//g, ".");
+    if (id.startsWith("@vendetta")) return id.substring(1).replace(/\//g, ".");
     if (id === "react") return "window.React";
     return null;
   },
