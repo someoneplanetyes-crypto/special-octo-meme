@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:legacy": "node ../scripts/build-legacy.mjs"
+    "build:legacy": "node build.mjs"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.0",
