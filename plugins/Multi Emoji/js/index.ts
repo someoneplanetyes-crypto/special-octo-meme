@@ -95,7 +95,7 @@ function MultiReactModal({ channelId, messageId, onClose }: { channelId: string,
                             const parts = emoji.replace(/[<>]/g, "").split(":");
                             const id = parts[parts.length - 1];
                             const ext = emoji.startsWith("<a:") ? "gif" : "png";
-                            customUrl = `https://discordapp.com{id}.${ext}`;
+                            customUrl = `https://cdn.discordapp.com/emojis/${id}.${ext}`;
                         }
 
                         return (
