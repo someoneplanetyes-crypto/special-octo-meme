@@ -6,6 +6,7 @@ on:
       - compat/vendetta-multi-emoji
     paths:
       - 'legacy/Multi Emoji/**'
+      - 'legacy/package.json'
       - 'scripts/build-legacy.mjs'
       - '.github/workflows/publish-legacy.yml'
   workflow_dispatch:
@@ -25,9 +26,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install legacy bundler
-        run: |
-          npm install --no-save --no-package-lock rollup@^3 @rollup/plugin-commonjs@^24 @rollup/plugin-node-resolve@^15 @swc/core@^1.3 rollup-plugin-esbuild@^5 esbuild@^0.16
+      - name: Install isolated legacy bundler
+        run: npm install --prefix legacy --no-audit --no-fund
       - name: Bundle plugin
         run: node scripts/build-legacy.mjs
       - name: Publish to GitHub Pages branch
@@ -37,7 +37,6 @@ jobs:
           set -euo pipefail
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          mkdir -p /tmp/pages
           git clone --depth 1 --branch gh-pages "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" /tmp/pages
           mkdir -p /tmp/pages/legacy/Multi-Emoji
           cp dist/Multi-Emoji/index.js dist/Multi-Emoji/manifest.json /tmp/pages/legacy/Multi-Emoji/
