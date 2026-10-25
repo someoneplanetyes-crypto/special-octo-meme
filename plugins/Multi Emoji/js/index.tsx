@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { metro } from "@revenge";
-import { after } from "@revenge/patcher";
+import { metro } from "@revenge-mod/modules";
+import { after } from "@revenge-mod/patcher";
 
 // 1. Locate Discord's internal modules and foundational UI components
 const ReactionModules = metro.findByProps("addReaction", "removeReaction");
