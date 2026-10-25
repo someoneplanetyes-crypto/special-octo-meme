@@ -3,6 +3,7 @@ import { findByName, findByProps } from "@vendetta/metro";
 import { findInReactTree } from "@vendetta/utils";
 import { after, before, unpatchAll } from "@vendetta/patcher";
 import { showModal, hideModal } from "@vendetta/ui/modals";
+import { showToast } from "@vendetta/ui/toasts";
 
 const { View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet } = ReactNative;
 const ReactionModules = findByProps("addReaction", "removeReaction");
@@ -97,13 +98,13 @@ function injectMultiReactRow(tree: any, message: any) {
   const row = React.createElement(ActionSheetRow, {
     label: "Multi React",
     onPress: () => {
-      LazyActionSheet?.hideActionSheet?.();
-      showModal({
-        render: () => <MultiReactModal
-          channelId={String(message.channel_id ?? message.channelId)}
-          messageId={String(message.id)}
-        />,
-      });
+  try {
+    LazyActionSheet?.hideActionSheet?.();
+    showToast("Multi React tap handler works!");
+    console.log("[Multi Emoji Legacy] Tap handler reached.");
+  } catch (error) {
+    console.error("[Multi Emoji Legacy] Tap handler failed:", error);
+      }
     },
     key: "multi-emoji-legacy",
   });
