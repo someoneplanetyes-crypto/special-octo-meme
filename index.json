@@ -1,7 +1,7 @@
 {
   "format": 1,
-  "name": "ma thingamabobs",
-  "description": ":shock:",
+  "name": "My Plugin Repository",
+  "description": "Example plugin repository from the Revenge plugin template.",
   "plugins": {
     "com.bread.multiemoji": {
       "name": "Multi Emoji",
