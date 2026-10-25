@@ -1,0 +1,111 @@
+{
+  "format": 1,
+  "name": "My Plugin Repository",
+  "description": "Example plugin repository from the Revenge plugin template.",
+  "plugins": {
+    "com.example.emojis": {
+      "name": "Example Emojis",
+      "description": "Example emoji packs for Revenge.",
+      "author": "Your Name",
+      "channels": {
+        "latest": "1.0.0"
+      },
+      "versions": {
+        "1.0.0": {
+          "url": "https://someoneplanetyes-crypto.github.io/special-octo-meme/pool/com.example.emojis@1.0.0.zip",
+          "sha256": "5b70be0fab36ed84fb42bb2a8cfae89aaac04751f2a75adc00c5806af5df0f5c",
+          "size": 7330,
+          "dependencies": {
+            "revenge.api": {
+              "version": ">=1.2.1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "revenge.api.themes": {
+              "version": "*"
+            }
+          }
+        }
+      }
+    },
+    "com.example.fonts": {
+      "name": "Example Fonts",
+      "description": "Example font packs for Revenge.",
+      "author": "Your Name",
+      "channels": {
+        "latest": "1.0.0"
+      },
+      "versions": {
+        "1.0.0": {
+          "url": "https://someoneplanetyes-crypto.github.io/special-octo-meme/pool/com.example.fonts@1.0.0.zip",
+          "sha256": "3e21c3dc5304914d64dacff37305eb811283ea422b8435b8a2231d9cc403d32e",
+          "size": 2424127,
+          "dependencies": {
+            "revenge.api": {
+              "version": ">=1.2.1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "revenge.api.themes": {
+              "version": "*"
+            }
+          }
+        }
+      }
+    },
+    "com.example.icons": {
+      "name": "Example Icons",
+      "description": "Example icon packs for Revenge.",
+      "author": "Your Name",
+      "channels": {
+        "latest": "1.1.0"
+      },
+      "versions": {
+        "1.1.0": {
+          "url": "https://someoneplanetyes-crypto.github.io/special-octo-meme/pool/com.example.icons@1.1.0.zip",
+          "sha256": "bc34c72befa4e00b7183e96ffafaf35fd5d339b56c996d3c1e87d06d1602c4cb",
+          "size": 6807,
+          "dependencies": {
+            "revenge.api": {
+              "version": ">=1.2.1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "revenge.api.themes": {
+              "version": "*"
+            }
+          }
+        }
+      }
+    },
+    "com.example.themes": {
+      "name": "Example Themes",
+      "description": "Example themes for Revenge.",
+      "author": "Your Name",
+      "channels": {
+        "latest": "1.0.0"
+      },
+      "versions": {
+        "1.0.0": {
+          "url": "https://someoneplanetyes-crypto.github.io/special-octo-meme/pool/com.example.themes@1.0.0.zip",
+          "sha256": "ee68271dc98d3466cc92523580bdfd1a3742513a511bcd5d52d628dabc702324",
+          "size": 91234,
+          "dependencies": {
+            "revenge.api": {
+              "version": ">=1.2.1 <2"
+            },
+            "discord": {
+              "version": "*"
+            },
+            "revenge.api.themes": {
+              "version": "*"
+            }
+          }
+        }
+      }
+    }
+  }
+}
