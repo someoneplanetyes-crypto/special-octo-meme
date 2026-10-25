@@ -1,0 +1,14 @@
+{
+  "name": "Multi Emoji (Legacy)",
+  "description": "Select multiple emojis to react (Vendetta-compatible build)",
+  "authors": [
+    {
+      "name": "Bread",
+      "id": "1340140909093720084"
+    }
+  ],
+  "main": "src/index.tsx",
+  "vendetta": {
+    "icon": "ic_add_reaction_24px"
+  }
+}
