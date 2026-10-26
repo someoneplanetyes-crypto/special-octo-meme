@@ -2,7 +2,6 @@ import { React, ReactNative } from "@vendetta/metro/common";
 import { findByName, findByProps } from "@vendetta/metro";
 import { findInReactTree } from "@vendetta/utils";
 import { after, before, unpatchAll } from "@vendetta/patcher";
-import { showModal, hideModal } from "@vendetta/ui/modals";
 
 const { View, Text, TextInput, TouchableOpacity, ScrollView, Image, StyleSheet } = ReactNative;
 const ReactionModules = findByProps("addReaction", "removeReaction");
@@ -11,6 +10,7 @@ const ActionSheetRowModule = findByProps("ActionSheetRow");
 const ActionSheetRow = ActionSheetRowModule?.ActionSheetRow;
 const AlertModules = findByProps("openAlert", "dismissAlert");
 const AlertComponents = findByProps("AlertModal", "AlertActions");
+const ALERT_ID = "multi-emoji-picker";
 
 const styles = StyleSheet.create({
   container: { padding: 20, backgroundColor: "#1e1f22", borderTopLeftRadius: 16, borderTopRightRadius: 16 },
@@ -57,7 +57,7 @@ function MultiReactModal({ channelId, messageId }: { channelId: string; messageI
       }
     }
     setBusy(false);
-    hideModal();
+    AlertModules?.dismissAlert?.(ALERT_ID);
   };
 
   return (
@@ -114,14 +114,13 @@ function injectMultiReactRow(tree: any, message: any) {
         }
 
         openAlert(
-          "multi-emoji-alert-api-test",
+          ALERT_ID,
           React.createElement(AlertModal, {
-            title: "Multi React — API Test",
-            content: React.createElement(
-              Text,
-              { style: { color: "#f2f3f5" } },
-              "If you can see this, Revenge's alert API opened successfully."
-            ),
+            title: "Multi React",
+            content: React.createElement(MultiReactModal, {
+              channelId: String(message.channel_id ?? message.channelId ?? ""),
+              messageId: String(message.id ?? ""),
+            }),
           }),
         );
       } catch (error) {
