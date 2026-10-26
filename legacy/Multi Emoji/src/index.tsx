@@ -9,6 +9,8 @@ const ReactionModules = findByProps("addReaction", "removeReaction");
 const LazyActionSheet = findByProps("openLazy", "hideActionSheet");
 const ActionSheetRowModule = findByProps("ActionSheetRow");
 const ActionSheetRow = ActionSheetRowModule?.ActionSheetRow;
+const AlertModules = findByProps("openAlert", "dismissAlert");
+const AlertComponents = findByProps("AlertModal", "AlertActions");
 
 const styles = StyleSheet.create({
   container: { padding: 20, backgroundColor: "#1e1f22", borderTopLeftRadius: 16, borderTopRightRadius: 16 },
@@ -97,12 +99,33 @@ function injectMultiReactRow(tree: any, message: any) {
   const row = React.createElement(ActionSheetRow, {
     label: "Multi React",
     onPress: () => {
-  try {
-    LazyActionSheet?.hideActionSheet?.();
-    console.log("Multi React tap handler works!");
-    console.log("[Multi Emoji Legacy] Tap handler reached.");
-  } catch (error) {
-    console.error("[Multi Emoji Legacy] Tap handler failed:", error);
+      try {
+        LazyActionSheet?.hideActionSheet?.();
+
+        const openAlert = AlertModules?.openAlert;
+        const AlertModal = AlertComponents?.AlertModal;
+
+        if (typeof openAlert !== "function" || typeof AlertModal !== "function") {
+          console.error("[Multi Emoji Legacy] Revenge alert API not found.", {
+            openAlert: typeof openAlert,
+            AlertModal: typeof AlertModal,
+          });
+          return;
+        }
+
+        openAlert(
+          "multi-emoji-alert-api-test",
+          React.createElement(AlertModal, {
+            title: "Multi React — API Test",
+            content: React.createElement(
+              Text,
+              { style: { color: "#f2f3f5" } },
+              "If you can see this, Revenge's alert API opened successfully."
+            ),
+          }),
+        );
+      } catch (error) {
+        console.error("[Multi Emoji Legacy] Alert API test failed:", error);
       }
     },
     key: "multi-emoji-legacy",
