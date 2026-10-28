@@ -40,7 +40,14 @@ jobs:
 
       - name: Build plugin bundle
         run: node legacy/build.mjs "No SilentDelete"
-
+            
+      - name: Verify Pages files
+        run: |
+          echo "Files in build output:"
+          ls -lah dist/No-SilentDelete
+          test -s dist/No-SilentDelete/index.js
+          test -s dist/No-SilentDelete/manifest.json 
+          
       - name: Add Pages landing page
         run: |
           cat > dist/No-SilentDelete/index.html <<'HTML'
