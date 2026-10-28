@@ -7,8 +7,9 @@ import commonjs from "@rollup/plugin-commonjs";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import swc from "@swc/core";
 
-const sourceDir = "./legacy/Multi Emoji";
-const outputDir = "./dist/Multi-Emoji";
+const pluginName = process.argv[2] ?? "Multi Emoji";
+const sourceDir = `./legacy/${pluginName}`;
+const outputDir = `./dist/${pluginName.replace(/\s+/g, "-")}`;
 const manifest = JSON.parse(await readFile(`${sourceDir}/manifest.json`, "utf8"));
 const extensions = [".js", ".jsx", ".mjs", ".ts", ".tsx", ".cts", ".mts"];
 
