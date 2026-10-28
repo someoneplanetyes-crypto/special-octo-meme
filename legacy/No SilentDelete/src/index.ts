@@ -39,6 +39,7 @@ function onMessageCreate(payload: any) {
 
   const channelId = getChannelId(payload, message);
   const messageId = String(message.id);
+  const authorId = String(message.author?.id ?? "");
   if (channelId) {
     recentMessages.set(key(channelId, messageId), message);
     if (recentMessages.size > MAX_CACHED_MESSAGES) {
@@ -47,19 +48,22 @@ function onMessageCreate(payload: any) {
     }
   }
 
-  // The supplied Silent Delete implementation uses the original message ID as
-  // the replacement's nonce and optionally sets the SUPPRESS_NOTIFICATIONS bit.
+  // The supplied plugin uses the original message ID as the replacement nonce.
+  // It also optionally sets flags=4096 when suppressNotifications is enabled.
   const nonce = message.nonce == null ? "" : String(message.nonce);
   const flags = Number(message.flags ?? 0);
-  const authorId = String(message.author?.id ?? "");
   if (!channelId || !nonce || !authorId || nonce === messageId) return;
 
-  // Only consider the signature when the replacement carries the flag used by
-  // the supplied plugin. This is a candidate, not definitive proof.
-  if ((flags & 4096) === 0) return;
-
   const original = recentMessages.get(key(channelId, nonce));
-  if (original?.author?.id && String(original.author.id) !== authorId) return;
+  const originalAuthorId = String(original?.author?.id ?? "");
+
+  // Prefer the strongest local evidence: nonce points to a cached message by
+  // the same author. If the original isn't cached, accept only the known flag
+  // signature as a weaker candidate. Neither condition proves intent by itself.
+  const sameAuthorOriginal = !!originalAuthorId && originalAuthorId === authorId;
+  const hasSuppressNotificationsFlag = (flags & 4096) !== 0;
+  if (!sameAuthorOriginal && !hasSuppressNotificationsFlag) return;
+  if (originalAuthorId && originalAuthorId !== authorId) return;
 
   candidates.set(key(channelId, messageId), {
     channelId,
@@ -69,7 +73,7 @@ function onMessageCreate(payload: any) {
     replacementDeleted: false,
   });
 
-  logger.log(`${PREFIX} Candidate replacement observed (channel=${channelId}, replacement=${messageId}, nonce/original=${nonce}). Waiting for delete events; this is heuristic only.`);
+  logger.log(`${PREFIX} Candidate replacement observed (channel=${channelId}, replacement=${messageId}, nonce/original=${nonce}, flags=${flags}). Waiting for delete events; this is heuristic only.`);
 }
 
 function onMessageDelete(payload: any) {
