@@ -1,0 +1,84 @@
+name: Deploy No SilentDelete to GitHub Pages
+
+on:
+  push:
+    branches:
+      - compat/vendetta-multi-emoji
+    paths:
+      - "legacy/No SilentDelete/**"
+      - "legacy/build.mjs"
+      - "legacy/package.json"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install build dependencies
+        working-directory: legacy
+        run: npm install
+
+      - name: Build plugin bundle
+        working-directory: legacy
+        run: npm run build:no-silentdelete
+
+      - name: Add Pages landing page
+        run: |
+          cat > legacy/dist/No-SilentDelete/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>No SilentDelete — plugin build</title>
+            <style>
+              body { font: 16px/1.6 system-ui, sans-serif; max-width: 680px; margin: 3rem auto; padding: 0 1.25rem; }
+              code { overflow-wrap: anywhere; }
+              a { color: inherit; }
+            </style>
+          </head>
+          <body>
+            <h1>No SilentDelete</h1>
+            <p>Legacy Vendetta/Revenge plugin build. This page hosts the generated bundle and manifest.</p>
+            <ul>
+              <li><a href="./index.js">Plugin bundle (index.js)</a></li>
+              <li><a href="./manifest.json">Plugin manifest (manifest.json)</a></li>
+            </ul>
+            <p><strong>Note:</strong> this is a detector build, not a verified working release. Test it on your client before relying on it.</p>
+            <p><a href="https://github.com/someoneplanetyes-crypto/special-octo-meme/tree/compat/vendetta-multi-emoji/legacy/No%20SilentDelete">View source on GitHub</a></p>
+          </body>
+          </html>
+          HTML
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: legacy/dist/No-SilentDelete
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
